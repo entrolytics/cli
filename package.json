@@ -54,7 +54,7 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@entrolytics/shared": "latest",
+    "@entrolytics/shared": "2.0.1",
     "chalk": "^5.6.2",
     "cli-table3": "^0.6.5",
     "commander": "^14.0.2",
@@ -65,7 +65,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.8",
-    "@types/node": "^24.10.1",
+    "@types/node": "^24.10.2",
     "@types/ws": "^8.18.1",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
