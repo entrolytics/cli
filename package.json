@@ -1,7 +1,7 @@
 {
   "name": "@entrolytics/cli",
   "version": "2.0.0",
-  "description": "Official CLI for Entrolytics - First-party growth analytics",
+  "description": "CLI for Entrolytics - First-party growth analytics for the edge",
   "keywords": [
     "entrolytics",
     "analytics",
@@ -65,7 +65,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.8",
-    "@types/node": "^24.10.2",
+    "@types/node": "^25.0.0",
     "@types/ws": "^8.18.1",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",

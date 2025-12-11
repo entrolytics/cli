@@ -1,6 +1,6 @@
 # @entrolytics/cli
 
-Official CLI for [Entrolytics](https://ng.entrolytics.click) - First-party growth analytics for the edge.
+CLI for [Entrolytics](https://ng.entrolytics.click) - First-party growth analytics for the edge.
 
 ## Installation
 
