@@ -97,11 +97,11 @@ export function detectPackageManager(cwd: string): 'npm' | 'pnpm' | 'yarn' | 'bu
  */
 export function getPackageName(framework: string | null): string | null {
   const packages: Record<string, string> = {
-    nextjs: '@entrolytics/nextjs',
-    react: '@entrolytics/react',
-    vue: '@entrolytics/vue',
-    svelte: '@entrolytics/svelte',
-    astro: '@entrolytics/astro',
+    nextjs: '@entrolytics/nextjs-sdk',
+    react: '@entrolytics/react-sdk',
+    vue: '@entrolytics/vue-sdk',
+    svelte: '@entrolytics/svelte-sdk',
+    astro: '@entrolytics/astro-sdk',
   };
 
   return framework ? packages[framework] || null : null;

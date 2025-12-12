@@ -361,7 +361,7 @@ async function installPackage(
 function getIntegrationCode(framework: string, websiteId: string, host: string): string {
   const examples: Record<string, string> = {
     nextjs: `${chalk.dim('1. Add to app/layout.tsx or app/layout.jsx:\n')}
-${chalk.cyan("import { Analytics } from '@entrolytics/nextjs';")}
+${chalk.cyan("import { Analytics } from '@entrolytics/nextjs-sdk';")}
 
 ${chalk.cyan('export default function RootLayout({ children }) {')}
 ${chalk.cyan('  return (')}
@@ -376,7 +376,7 @@ ${chalk.cyan('}')}\n
 ${chalk.dim('The Analytics component automatically reads from your .env.local file.')}\n`,
 
     react: `${chalk.dim('1. Add to your root component (e.g., App.jsx):\n')}
-${chalk.cyan("import { Analytics } from '@entrolytics/react';")}
+${chalk.cyan("import { Analytics } from '@entrolytics/react-sdk';")}
 
 ${chalk.cyan('function App() {')}
 ${chalk.cyan('  return (')}
@@ -389,7 +389,7 @@ ${chalk.cyan('}')}\n
 ${chalk.dim('The Analytics component automatically reads from your .env file.')}\n`,
 
     vue: `${chalk.dim('1. Add to your main.js or main.ts:\n')}
-${chalk.cyan("import { createEntrolytics } from '@entrolytics/vue';")}
+${chalk.cyan("import { createEntrolytics } from '@entrolytics/vue-sdk';")}
 
 ${chalk.cyan('const app = createApp(App);')}
 ${chalk.cyan('app.use(createEntrolytics());')}\n
@@ -397,7 +397,7 @@ ${chalk.dim('The plugin automatically reads from your .env file.')}\n`,
 
     svelte: `${chalk.dim('1. Add to your +layout.svelte:\n')}
 ${chalk.cyan('<script>')}
-${chalk.cyan("  import { initEntrolytics } from '@entrolytics/svelte';")}
+${chalk.cyan("  import { initEntrolytics } from '@entrolytics/svelte-sdk';")}
 ${chalk.cyan('  initEntrolytics();')}
 ${chalk.cyan('</script>')}
 
@@ -405,7 +405,7 @@ ${chalk.cyan('<slot />')}\n
 ${chalk.dim('The init function automatically reads from your .env file.')}\n`,
 
     astro: `${chalk.dim('1. Add to astro.config.mjs:\n')}
-${chalk.cyan("import entrolytics from '@entrolytics/astro';")}
+${chalk.cyan("import entrolytics from '@entrolytics/astro-sdk';")}
 
 ${chalk.cyan('export default defineConfig({')}
 ${chalk.cyan('  integrations: [entrolytics()]')}

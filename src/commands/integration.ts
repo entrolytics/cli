@@ -12,9 +12,9 @@ const snippets: Record<string, (host: string, siteId: string) => string> = {
   html: (host, siteId) =>
     `<script defer src="${host}/script.js" data-website-id="${siteId}"></script>`,
 
-  react: (host, siteId) => `// Install: npm install @entrolytics/react
+  react: (host, siteId) => `// Install: npm install @entrolytics/react-sdk
 
-import { EntrolyticsProvider } from '@entrolytics/react';
+import { EntrolyticsProvider } from '@entrolytics/react-sdk';
 
 function App() {
   return (
@@ -27,30 +27,31 @@ function App() {
   );
 }`,
 
-  next: (host, siteId) => `// Install: npm install @entrolytics/nextjs
+  next: (host, siteId) => `// Install: npm install @entrolytics/nextjs-sdk
 
 // app/layout.tsx
-import { EntrolyticsScript } from '@entrolytics/nextjs';
+import { Analytics } from '@entrolytics/nextjs-sdk';
 
 export default function RootLayout({ children }) {
   return (
     <html>
-      <head>
-        <EntrolyticsScript
-          websiteId="${siteId}"
-          host="${host}"
-        />
-      </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
-}`,
+}
 
-  astro: (host, siteId) => `// Install: npm install @entrolytics/astro
+// The Analytics component reads from .env.local:
+// NEXT_PUBLIC_ENTROLYTICS_NG_WEBSITE_ID=${siteId}
+// NEXT_PUBLIC_ENTROLYTICS_HOST=${host}`,
+
+  astro: (host, siteId) => `// Install: npm install @entrolytics/astro-sdk
 
 // astro.config.mjs
 import { defineConfig } from 'astro/config';
-import entrolytics from '@entrolytics/astro';
+import entrolytics from '@entrolytics/astro-sdk';
 
 export default defineConfig({
   integrations: [
@@ -61,11 +62,11 @@ export default defineConfig({
   ]
 });`,
 
-  vue: (host, siteId) => `// Install: npm install @entrolytics/vue
+  vue: (host, siteId) => `// Install: npm install @entrolytics/vue-sdk
 
 // main.ts
 import { createApp } from 'vue';
-import { createEntrolytics } from '@entrolytics/vue';
+import { createEntrolytics } from '@entrolytics/vue-sdk';
 
 const app = createApp(App);
 
@@ -76,11 +77,11 @@ app.use(createEntrolytics({
 
 app.mount('#app');`,
 
-  svelte: (host, siteId) => `// Install: npm install @entrolytics/svelte
+  svelte: (host, siteId) => `// Install: npm install @entrolytics/svelte-sdk
 
 // +layout.svelte
 <script>
-  import { Entrolytics } from '@entrolytics/svelte';
+  import { Entrolytics } from '@entrolytics/svelte-sdk';
 </script>
 
 <Entrolytics

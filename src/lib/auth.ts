@@ -88,7 +88,7 @@ export function clearAuth(): void {
 export function requireAuth(): AuthCredentials {
   const credentials = getAuthCredentials();
   if (!credentials || !isAuthenticated()) {
-    throw new Error('Not authenticated. Run `entro login` first.');
+    throw new Error('Not authenticated. Run `entro-ng login` first.');
   }
   return credentials;
 }
@@ -111,6 +111,6 @@ export function displayAuthErrorHelp(): void {
   const chalk = require('chalk');
   console.log(chalk.yellow('\n⚠️  Your session is invalid or expired.'));
   console.log(chalk.dim('Please logout and login again:\n'));
-  console.log(chalk.cyan('  entro logout'));
-  console.log(chalk.cyan('  entro login\n'));
+  console.log(chalk.cyan('  entro-ng logout'));
+  console.log(chalk.cyan('  entro-ng login\n'));
 }

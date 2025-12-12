@@ -36,7 +36,7 @@ import { description, version } from './version.js';
 const program = new Command();
 
 program
-  .name('entro')
+  .name('entro-ng')
   .description(description)
   .version(version, '-v, --version', 'Display version number');
 
