@@ -124,11 +124,20 @@ export function getEnvVarNames(framework: string | null): {
     };
   }
 
-  // For other frameworks, use VITE_ prefix (common in Vite-based setups)
-  if (framework === 'vue' || framework === 'svelte') {
+  // For Vue, use VITE_ prefix (Vite-based setups)
+  if (framework === 'vue') {
     return {
       websiteId: 'VITE_ENTROLYTICS_NG_WEBSITE_ID',
       host: 'VITE_ENTROLYTICS_HOST',
+      envFile: '.env',
+    };
+  }
+
+  // Svelte/SvelteKit uses PUBLIC_ prefix
+  if (framework === 'svelte') {
+    return {
+      websiteId: 'PUBLIC_ENTROLYTICS_NG_WEBSITE_ID',
+      host: 'PUBLIC_ENTROLYTICS_HOST',
       envFile: '.env',
     };
   }

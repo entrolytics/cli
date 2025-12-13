@@ -218,7 +218,15 @@ class EntrolyticsApi {
   }
 
   async getRealtimeVisitors(websiteId: string): Promise<ApiResponse<{ count: number }>> {
-    return this.request<{ count: number }>(`/websites/${websiteId}/active`);
+    // API returns { visitors: number }, normalize to { count: number }
+    const result = await this.request<{ visitors?: number; count?: number }>(`/websites/${websiteId}/active`);
+    if (result.error || !result.data) {
+      return { error: result.error, status: result.status };
+    }
+    return {
+      data: { count: result.data.visitors ?? result.data.count ?? 0 },
+      status: result.status
+    };
   }
 
   // Links
@@ -296,7 +304,7 @@ class EntrolyticsApi {
     mode: import('./types.js').IngestMode
   ): Promise<ApiResponse<{ message: string }>> {
     return this.request<{ message: string }>(`/websites/${websiteId}/mode`, {
-      method: 'PUT',
+      method: 'POST',
       body: JSON.stringify({ ingestMode: mode }),
     });
   }
