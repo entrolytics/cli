@@ -1,6 +1,6 @@
 import Conf from 'conf';
-import type { AuthCredentials } from './types.js';
 import { getApiHost } from './config.js';
+import type { AuthCredentials } from './types.js';
 
 const authStore = new Conf<{ credentials?: AuthCredentials }>({
   projectName: 'entro-cli',
@@ -61,9 +61,7 @@ export async function validateTokenWithServer(): Promise<boolean> {
 /**
  * Check if authenticated with optional server validation
  */
-export async function isAuthenticatedWithValidation(
-  validateWithServer = false,
-): Promise<boolean> {
+export async function isAuthenticatedWithValidation(validateWithServer = false): Promise<boolean> {
   // First check local state
   if (!isAuthenticated()) {
     return false;
@@ -101,7 +99,11 @@ export function isAuthError(error: string | undefined, status?: number): boolean
   if (status === 401) return true;
   if (!error) return false;
   const lowerError = error.toLowerCase();
-  return lowerError.includes('unauthorized') || lowerError.includes('invalid token') || lowerError.includes('expired');
+  return (
+    lowerError.includes('unauthorized') ||
+    lowerError.includes('invalid token') ||
+    lowerError.includes('expired')
+  );
 }
 
 /**

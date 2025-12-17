@@ -1,5 +1,5 @@
-import Table from 'cli-table3';
 import chalk from 'chalk';
+import Table from 'cli-table3';
 import ora from 'ora';
 import { api } from '../lib/api.js';
 import { getAuthCredentials, requireAuth } from '../lib/auth.js';
@@ -69,9 +69,7 @@ export async function tokensRevokeCommand(jti?: string): Promise<void> {
   const isCurrentToken = targetJti === credentials?.jti;
 
   if (isCurrentToken) {
-    console.log(
-      chalk.yellow('Warning: You are about to revoke your current session token.'),
-    );
+    console.log(chalk.yellow('Warning: You are about to revoke your current session token.'));
     console.log(chalk.dim('You will need to run `entro-ng login` again to authenticate.\n'));
   }
 

@@ -49,7 +49,9 @@ export async function updateCommand(options: UpdateOptions = {}): Promise<void> 
     if (websiteResult.error) {
       spinner.fail(chalk.red('Website not found'));
       console.error(chalk.dim(websiteResult.error));
-      console.log(chalk.dim(`\nRun ${chalk.cyan('entro-ng sites list')} to see available websites.`));
+      console.log(
+        chalk.dim(`\nRun ${chalk.cyan('entro-ng sites list')} to see available websites.`),
+      );
       process.exit(1);
     }
 

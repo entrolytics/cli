@@ -275,7 +275,9 @@ async function tokenBasedSetup(token: string, cwd: string, options: InitOptions)
 
     // Show integration code
     if (packageName) {
-      console.log(getIntegrationCode(framework, website.id || website.websiteId, configuredApiHost));
+      console.log(
+        getIntegrationCode(framework, website.id || website.websiteId, configuredApiHost),
+      );
     } else {
       // HTML snippet
       console.log(chalk.bold('Add this script to your HTML:\n'));

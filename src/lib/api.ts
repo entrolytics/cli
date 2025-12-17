@@ -1,6 +1,16 @@
 import { getAuthToken } from './auth.js';
 import { getApiHost } from './config.js';
-import type { ApiResponse, ApiStats, ApiUser, Link, Organization, Stats, TopResult, User, Website } from './types.js';
+import type {
+  ApiResponse,
+  ApiStats,
+  ApiUser,
+  Link,
+  Organization,
+  Stats,
+  TopResult,
+  User,
+  Website,
+} from './types.js';
 
 /**
  * Helper to calculate percent change between current and comparison values
@@ -47,7 +57,10 @@ class EntrolyticsApi {
 
       if (!response.ok) {
         return {
-          error: data?.message || data?.error?.message || `Request failed with status ${response.status}`,
+          error:
+            data?.message ||
+            data?.error?.message ||
+            `Request failed with status ${response.status}`,
           status: response.status,
         };
       }
@@ -64,7 +77,10 @@ class EntrolyticsApi {
   /**
    * Request that returns paginated results - extracts the data array
    */
-  private async requestPaginated<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T[]>> {
+  private async requestPaginated<T>(
+    endpoint: string,
+    options: RequestInit = {},
+  ): Promise<ApiResponse<T[]>> {
     const result = await this.request<PageResult<T[]> | T[]>(endpoint, options);
 
     if (result.error) {
@@ -73,7 +89,12 @@ class EntrolyticsApi {
 
     // Handle both paginated and non-paginated responses
     const data = result.data;
-    if (data && typeof data === 'object' && 'data' in data && Array.isArray((data as PageResult<T[]>).data)) {
+    if (
+      data &&
+      typeof data === 'object' &&
+      'data' in data &&
+      Array.isArray((data as PageResult<T[]>).data)
+    ) {
       return { data: (data as PageResult<T[]>).data, status: result.status };
     }
 
@@ -151,22 +172,37 @@ class EntrolyticsApi {
       return { data: undefined, status: result.status };
     }
 
-    const comp = raw.comparison || { pageviews: 0, visitors: 0, visits: 0, bounces: 0, totaltime: 0 };
+    const comp = raw.comparison || {
+      pageviews: 0,
+      visitors: 0,
+      visits: 0,
+      bounces: 0,
+      totaltime: 0,
+    };
 
     // Transform flat API response into CLI Stats format
     return {
       data: {
-        pageviews: { value: raw.pageviews || 0, change: calcChange(raw.pageviews || 0, comp.pageviews) },
-        visitors: { value: raw.visitors || 0, change: calcChange(raw.visitors || 0, comp.visitors) },
+        pageviews: {
+          value: raw.pageviews || 0,
+          change: calcChange(raw.pageviews || 0, comp.pageviews),
+        },
+        visitors: {
+          value: raw.visitors || 0,
+          change: calcChange(raw.visitors || 0, comp.visitors),
+        },
         visits: { value: raw.visits || 0, change: calcChange(raw.visits || 0, comp.visits) },
         bounces: {
           value: raw.visits > 0 ? Math.round((raw.bounces / raw.visits) * 100) : 0,
           change: calcChange(
             raw.visits > 0 ? (raw.bounces / raw.visits) * 100 : 0,
-            comp.visits > 0 ? (comp.bounces / comp.visits) * 100 : 0
-          )
+            comp.visits > 0 ? (comp.bounces / comp.visits) * 100 : 0,
+          ),
         },
-        totalTime: { value: raw.totaltime || 0, change: calcChange(raw.totaltime || 0, comp.totaltime) },
+        totalTime: {
+          value: raw.totaltime || 0,
+          change: calcChange(raw.totaltime || 0, comp.totaltime),
+        },
       },
       status: result.status,
     };
@@ -219,13 +255,15 @@ class EntrolyticsApi {
 
   async getRealtimeVisitors(websiteId: string): Promise<ApiResponse<{ count: number }>> {
     // API returns { visitors: number }, normalize to { count: number }
-    const result = await this.request<{ visitors?: number; count?: number }>(`/websites/${websiteId}/active`);
+    const result = await this.request<{ visitors?: number; count?: number }>(
+      `/websites/${websiteId}/active`,
+    );
     if (result.error || !result.data) {
       return { error: result.error, status: result.status };
     }
     return {
       data: { count: result.data.visitors ?? result.data.count ?? 0 },
-      status: result.status
+      status: result.status,
     };
   }
 
@@ -276,7 +314,9 @@ class EntrolyticsApi {
   }
 
   // CLI Token Management
-  async listCliTokens(): Promise<ApiResponse<import('@entrolytics/shared').CliAccessTokenMetadata[]>> {
+  async listCliTokens(): Promise<
+    ApiResponse<import('@entrolytics/shared').CliAccessTokenMetadata[]>
+  > {
     return this.request<import('@entrolytics/shared').CliAccessTokenMetadata[]>('/auth/cli/tokens');
   }
 
@@ -295,13 +335,15 @@ class EntrolyticsApi {
   }
 
   // Routing
-  async getWebsiteMode(websiteId: string): Promise<ApiResponse<import('./types.js').WebsiteModeConfig>> {
+  async getWebsiteMode(
+    websiteId: string,
+  ): Promise<ApiResponse<import('./types.js').WebsiteModeConfig>> {
     return this.request<import('./types.js').WebsiteModeConfig>(`/websites/${websiteId}/mode`);
   }
 
   async setWebsiteMode(
     websiteId: string,
-    mode: import('./types.js').IngestMode
+    mode: import('./types.js').IngestMode,
   ): Promise<ApiResponse<{ message: string }>> {
     return this.request<{ message: string }>(`/websites/${websiteId}/mode`, {
       method: 'POST',
@@ -315,7 +357,7 @@ class EntrolyticsApi {
 
   async getRoutingStats(
     startDate?: string,
-    endDate?: string
+    endDate?: string,
   ): Promise<ApiResponse<import('./types.js').RoutingStats>> {
     const params = new URLSearchParams();
     if (startDate) params.append('start', startDate);

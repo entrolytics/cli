@@ -106,7 +106,8 @@ export async function routingHealthCommand(): Promise<void> {
   }
 
   // Overall status
-  const statusColor = health.status === 'ok' ? chalk.green : health.status === 'degraded' ? chalk.yellow : chalk.red;
+  const statusColor =
+    health.status === 'ok' ? chalk.green : health.status === 'degraded' ? chalk.yellow : chalk.red;
   console.log(chalk.bold('Routing Health:'));
   console.log(`  Status: ${statusColor(health.status.toUpperCase())}`);
   console.log();
@@ -122,7 +123,7 @@ export async function routingHealthCommand(): Promise<void> {
 
   table.push(
     ['Edge Runtime', edgeStatus, `${health.edge.latency}ms`],
-    ['Node.js Runtime', nodeStatus, `${health.node.latency}ms`]
+    ['Node.js Runtime', nodeStatus, `${health.node.latency}ms`],
   );
 
   console.log(table.toString());
@@ -130,7 +131,10 @@ export async function routingHealthCommand(): Promise<void> {
   console.log(chalk.dim(`Last checked: ${new Date(health.timestamp).toLocaleString()}`));
 }
 
-export async function routingStatsCommand(options: { start?: string; end?: string }): Promise<void> {
+export async function routingStatsCommand(options: {
+  start?: string;
+  end?: string;
+}): Promise<void> {
   requireAuth();
 
   const spinner = ora('Fetching routing statistics...').start();
@@ -153,7 +157,9 @@ export async function routingStatsCommand(options: { start?: string; end?: strin
   }
 
   console.log(chalk.bold('Routing Statistics:'));
-  console.log(`  Period: ${new Date(stats.period.start).toLocaleDateString()} - ${new Date(stats.period.end).toLocaleDateString()}`);
+  console.log(
+    `  Period: ${new Date(stats.period.start).toLocaleDateString()} - ${new Date(stats.period.end).toLocaleDateString()}`,
+  );
   console.log();
 
   // Request distribution
@@ -169,7 +175,7 @@ export async function routingStatsCommand(options: { start?: string; end?: strin
   requestTable.push(
     ['Edge', stats.requests.edge.toLocaleString(), `${edgePercent}%`],
     ['Node.js', stats.requests.node.toLocaleString(), `${nodePercent}%`],
-    [chalk.bold('Total'), chalk.bold(stats.requests.total.toLocaleString()), chalk.bold('100%')]
+    [chalk.bold('Total'), chalk.bold(stats.requests.total.toLocaleString()), chalk.bold('100%')],
   );
 
   console.log(requestTable.toString());
@@ -185,7 +191,7 @@ export async function routingStatsCommand(options: { start?: string; end?: strin
 
   latencyTable.push(
     ['Edge', stats.latency.edge.p50, stats.latency.edge.p95, stats.latency.edge.p99],
-    ['Node.js', stats.latency.node.p50, stats.latency.node.p95, stats.latency.node.p99]
+    ['Node.js', stats.latency.node.p50, stats.latency.node.p95, stats.latency.node.p99],
   );
 
   console.log(latencyTable.toString());

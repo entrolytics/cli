@@ -59,9 +59,7 @@ export async function loginCommand(): Promise<void> {
     // Decode token to extract JTI for revocation tracking
     let jti: string | undefined;
     try {
-      const payload = JSON.parse(
-        Buffer.from(data.accessToken.split('.')[1], 'base64').toString(),
-      );
+      const payload = JSON.parse(Buffer.from(data.accessToken.split('.')[1], 'base64').toString());
       jti = payload.jti;
     } catch (e) {
       // Non-fatal: JTI extraction failed, but authentication still works
@@ -203,8 +201,7 @@ export async function switchCommand(org: string): Promise<void> {
 
   const orgs = result.data || [];
   const targetOrg = orgs.find(
-    (o: { id: string; name: string }) =>
-      o.id === org || o.name.toLowerCase() === org.toLowerCase(),
+    (o: { id: string; name: string }) => o.id === org || o.name.toLowerCase() === org.toLowerCase(),
   );
 
   if (!targetOrg) {

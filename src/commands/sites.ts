@@ -44,7 +44,12 @@ export async function sitesListCommand(): Promise<void> {
   });
 
   for (const site of websites) {
-    table.push([site.websiteId, site.domain, site.name, new Date(site.createdAt).toLocaleDateString()]);
+    table.push([
+      site.websiteId,
+      site.domain,
+      site.name,
+      new Date(site.createdAt).toLocaleDateString(),
+    ]);
   }
 
   console.log(table.toString());

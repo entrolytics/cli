@@ -106,7 +106,9 @@ export async function verifyCommand(options: VerifyOptions = {}): Promise<void> 
     console.log(chalk.dim('1. Make sure your application is running'));
     console.log(chalk.dim('2. Visit your website in a browser'));
     console.log(chalk.dim('3. Check the browser console for any errors'));
-    console.log(chalk.dim(`4. Run ${chalk.cyan('entro-ng stats ' + websiteId)} to view analytics\n`));
+    console.log(
+      chalk.dim(`4. Run ${chalk.cyan('entro-ng stats ' + websiteId)} to view analytics\n`),
+    );
   } else {
     console.log(
       chalk.green(
