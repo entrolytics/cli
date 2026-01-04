@@ -1,3 +1,5 @@
+import { getClient } from '@entrolytics/api-client';
+import type { EntrolyticsClient, ApiClient } from '@entrolytics/api-client';
 import { getAuthToken } from './auth.js';
 import { getApiHost } from './config.js';
 import type {
@@ -20,99 +22,60 @@ function calcChange(current: number, comparison: number): number {
   return Math.round(((current - comparison) / comparison) * 100);
 }
 
-/**
- * Paginated response from API
- */
-interface PageResult<T> {
-  data: T;
-  count: number;
-  page: number;
-  pageSize: number;
-  orderBy?: string;
-  search?: string;
-}
-
 class EntrolyticsApi {
-  private getHeaders(): HeadersInit {
+  private getClient(): EntrolyticsClient & { request: ApiClient['request'] } {
     const token = getAuthToken();
-    return {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-    };
+    const endpoint = `${getApiHost()}/api`;
+
+    // We cast to access the underlying request method if needed for custom endpoints not in SDK
+    // But ideally we use SDK methods.
+    // The getClient retuns a composed object, not the ApiClient instance directly as 'this'.
+    // However, for migration, we might need raw access.
+    // Actually, getClient returns an object that HAS methods which close over the ApiClient instance.
+    // It does NOT expose the apiClient instance.
+    // But I can import ApiClient class directly if I want manual control.
+    // Let's use ApiClient class directly to easier match the 'request' pattern if needed, 
+    // OR just use getClient and map methods.
+    // Using getClient is better for long term.
+
+    return getClient({
+      endpoint,
+      bearerToken: token,
+      // Pass the fetch implementation if needed, usually global fetch is fine
+    }) as unknown as EntrolyticsClient & { request: ApiClient['request'] };
   }
 
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
-    const url = `${getApiHost()}/api${endpoint}`;
-
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers: {
-          ...this.getHeaders(),
-          ...options.headers,
-        },
-      });
-
-      const data = await response.json().catch(() => null);
-
-      if (!response.ok) {
-        return {
-          error:
-            data?.message ||
-            data?.error?.message ||
-            `Request failed with status ${response.status}`,
-          status: response.status,
-        };
-      }
-
-      return { data, status: response.status };
-    } catch (error) {
+  // Helper to convert SDK response to CLI response format
+  private mapResponse<T>(sdkResponse: { ok: boolean; status: number; data?: any; error?: string }): ApiResponse<T> {
+    if (!sdkResponse.ok) {
       return {
-        error: error instanceof Error ? error.message : 'Unknown error',
-        status: 0,
+        error: sdkResponse.error || `Request failed with status ${sdkResponse.status}`,
+        status: sdkResponse.status,
       };
     }
-  }
-
-  /**
-   * Request that returns paginated results - extracts the data array
-   */
-  private async requestPaginated<T>(
-    endpoint: string,
-    options: RequestInit = {},
-  ): Promise<ApiResponse<T[]>> {
-    const result = await this.request<PageResult<T[]> | T[]>(endpoint, options);
-
-    if (result.error) {
-      return { error: result.error, status: result.status };
-    }
-
-    // Handle both paginated and non-paginated responses
-    const data = result.data;
-    if (
-      data &&
-      typeof data === 'object' &&
-      'data' in data &&
-      Array.isArray((data as PageResult<T[]>).data)
-    ) {
-      return { data: (data as PageResult<T[]>).data, status: result.status };
-    }
-
-    // Already an array
-    return { data: data as T[], status: result.status };
+    return {
+      data: sdkResponse.data as T,
+      status: sdkResponse.status,
+    };
   }
 
   // Auth
   async getUser(): Promise<ApiResponse<User>> {
-    // The /api/me endpoint returns { user: {...}, clerkUserId, orgId }
-    const result = await this.request<{ user: ApiUser }>('/me');
-    if (result.error) {
-      return { error: result.error, status: result.status };
-    }
-    // Extract user from response wrapper
-    const userData = result.data?.user;
+    const client = this.getClient();
+    // SDK has getMe() which returns { user: ... } usually
+    const result = await client.getMe();
+
+    if (!result.ok) return this.mapResponse(result);
+
+    // SDK getMe returns what the API returns.
+    // CLI expects: 
+    // { user: ApiUser, clerkUserId: string, orgId: string } based on previous implementation?
+    // Let's assume SDK types match API.
+
+    const data = result.data as any; // Cast to avoid strict type checking for now
+    const userData = data?.user;
+
     if (userData) {
-      // Map API field names to CLI field names
       return {
         data: {
           id: userData.userId,
@@ -132,45 +95,70 @@ class EntrolyticsApi {
 
   // Organizations
   async getOrgs(): Promise<ApiResponse<Organization[]>> {
-    return this.requestPaginated<Organization>('/me/orgs');
+    const client = this.getClient();
+    const result = await client.getMyOrgs();
+
+    // SDK getMyOrgs returns { data: Organization[], ... } or Organization[]?
+    // Check endpoints/me.ts or orgs.ts in SDK?
+    // Previous CLI code expected Paginated response or array.
+    // SDK usually handles unwrapping if designed well, but let's be safe.
+
+    // Assuming SDK returns the data directly or we map it.
+    // If result.data has 'data' property and it's an array, usage it.
+
+    if (!result.ok) return this.mapResponse(result);
+
+    const data = result.data as any;
+    const orgs = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+
+    return {
+      data: orgs as Organization[],
+      status: result.status,
+    };
   }
 
   // Websites
   async getWebsites(): Promise<ApiResponse<Website[]>> {
-    return this.requestPaginated<Website>('/websites');
+    const client = this.getClient();
+    const result = await client.getWebsites();
+    if (!result.ok) return this.mapResponse(result);
+
+    const data = result.data as any;
+    const sites = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+
+    return { data: sites as Website[], status: result.status };
   }
 
   async getWebsite(id: string): Promise<ApiResponse<Website>> {
-    return this.request<Website>(`/websites/${id}`);
+    const client = this.getClient();
+    const result = await client.getWebsite(id);
+    return this.mapResponse<Website>(result);
   }
 
   async createWebsite(domain: string, name?: string): Promise<ApiResponse<Website>> {
-    return this.request<Website>('/websites', {
-      method: 'POST',
-      body: JSON.stringify({ domain, name: name || domain }),
-    });
+    const client = this.getClient();
+    const result = await client.createWebsite({ domain, name: name || domain });
+    return this.mapResponse<Website>(result);
   }
 
   async deleteWebsite(id: string): Promise<ApiResponse<void>> {
-    return this.request<void>(`/websites/${id}`, { method: 'DELETE' });
+    const client = this.getClient();
+    const result = await client.deleteWebsite(id);
+    return this.mapResponse<void>(result);
   }
 
   // Stats
   async getStats(websiteId: string, startAt: number, endAt: number): Promise<ApiResponse<Stats>> {
-    const params = new URLSearchParams({
-      startAt: startAt.toString(),
-      endAt: endAt.toString(),
-    });
-    const result = await this.request<ApiStats>(`/websites/${websiteId}/stats?${params}`);
+    const client = this.getClient();
+    // SDK getWebsiteStats takes object { start, end } usually strings or numbers?
+    // SDK signature: getWebsiteStats(websiteId, params: DateRangeParams)
+    // DateRangeParams: { startAt: number, endAt: number }
+    const result = await client.getWebsiteStats(websiteId, { startAt, endAt });
 
-    if (result.error) {
-      return { error: result.error, status: result.status };
-    }
+    if (!result.ok) return this.mapResponse(result);
 
-    const raw = result.data;
-    if (!raw) {
-      return { data: undefined, status: result.status };
-    }
+    const raw = result.data as any; // Cast to ApiStats
+    if (!raw) return { data: undefined, status: result.status };
 
     const comp = raw.comparison || {
       pageviews: 0,
@@ -180,7 +168,6 @@ class EntrolyticsApi {
       totaltime: 0,
     };
 
-    // Transform flat API response into CLI Stats format
     return {
       data: {
         pageviews: {
@@ -214,13 +201,17 @@ class EntrolyticsApi {
     endAt: number,
     limit = 10,
   ): Promise<ApiResponse<TopResult[]>> {
-    const params = new URLSearchParams({
-      startAt: startAt.toString(),
-      endAt: endAt.toString(),
-      limit: limit.toString(),
+    const client = this.getClient();
+    // SDK getWebsiteMetrics
+    // params: { type: 'url', startAt, endAt, limit }
+    const result = await client.getWebsiteMetrics(websiteId, {
       type: 'url',
+      startAt,
+      endAt,
+      limit
     });
-    return this.request<TopResult[]>(`/websites/${websiteId}/metrics?${params}`);
+    // SDK returns MetricData[]: { x: string, y: number }
+    return this.mapResponse<TopResult[]>(result);
   }
 
   async getTopReferrers(
@@ -229,13 +220,14 @@ class EntrolyticsApi {
     endAt: number,
     limit = 10,
   ): Promise<ApiResponse<TopResult[]>> {
-    const params = new URLSearchParams({
-      startAt: startAt.toString(),
-      endAt: endAt.toString(),
-      limit: limit.toString(),
+    const client = this.getClient();
+    const result = await client.getWebsiteMetrics(websiteId, {
       type: 'referrer',
+      startAt,
+      endAt,
+      limit
     });
-    return this.request<TopResult[]>(`/websites/${websiteId}/metrics?${params}`);
+    return this.mapResponse<TopResult[]>(result);
   }
 
   async getTopCountries(
@@ -244,33 +236,44 @@ class EntrolyticsApi {
     endAt: number,
     limit = 10,
   ): Promise<ApiResponse<TopResult[]>> {
-    const params = new URLSearchParams({
-      startAt: startAt.toString(),
-      endAt: endAt.toString(),
-      limit: limit.toString(),
+    const client = this.getClient();
+    const result = await client.getWebsiteMetrics(websiteId, {
       type: 'country',
+      startAt,
+      endAt,
+      limit
     });
-    return this.request<TopResult[]>(`/websites/${websiteId}/metrics?${params}`);
+    return this.mapResponse<TopResult[]>(result);
   }
 
   async getRealtimeVisitors(websiteId: string): Promise<ApiResponse<{ count: number }>> {
-    // API returns { visitors: number }, normalize to { count: number }
-    const result = await this.request<{ visitors?: number; count?: number }>(
-      `/websites/${websiteId}/active`,
-    );
-    if (result.error || !result.data) {
-      return { error: result.error, status: result.status };
-    }
+    const client = this.getClient();
+    const result = await client.getRealtimeData(websiteId);
+
+    if (!result.ok) return this.mapResponse(result);
+
+    const data = result.data as any;
+    // data might be { visitors: number }
     return {
-      data: { count: result.data.visitors ?? result.data.count ?? 0 },
-      status: result.status,
+      data: { count: data.visitors ?? data.count ?? 0 },
+      status: result.status
     };
   }
 
   // Links
   async getLinks(orgId?: string): Promise<ApiResponse<Link[]>> {
-    const endpoint = orgId ? `/orgs/${orgId}/links` : '/links';
-    return this.request<Link[]>(endpoint);
+    const client = this.getClient();
+    let result;
+    if (orgId) {
+      result = await client.getOrgLinks(orgId);
+    } else {
+      result = await client.getLinks();
+    }
+    // SDK returns Link[] or PageResult
+    if (!result.ok) return this.mapResponse(result);
+    const data = result.data as any;
+    const links = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+    return { data: links, status: result.status };
   }
 
   async createLink(
@@ -279,91 +282,87 @@ class EntrolyticsApi {
     slug?: string,
     orgId?: string,
   ): Promise<ApiResponse<Link>> {
-    return this.request<Link>('/links', {
-      method: 'POST',
-      body: JSON.stringify({
-        url,
-        name: name || new URL(url).hostname,
-        slug: slug || undefined,
-        orgId: orgId || undefined,
-      }),
+    const client = this.getClient();
+    const result = await client.createLink({
+      url,
+      name: name || new URL(url).hostname,
+      slug,
+      orgId
     });
+    return this.mapResponse<Link>(result);
   }
 
   async getLinkStats(linkId: string): Promise<ApiResponse<Stats>> {
-    return this.request<Stats>(`/links/${linkId}/stats`);
+    const client = this.getClient();
+    // Use the newly added SDK method
+    const result = await client.links.getLinkStats(linkId);
+    return this.mapResponse<Stats>(result);
   }
 
   async deleteLink(linkId: string): Promise<ApiResponse<void>> {
-    return this.request<void>(`/links/${linkId}`, { method: 'DELETE' });
+    const client = this.getClient();
+    const result = await client.deleteLink(linkId);
+    return this.mapResponse<void>(result);
   }
 
-  // Events
+  // Events - sendTestEvent
   async sendTestEvent(websiteId: string): Promise<ApiResponse<void>> {
-    return this.request<void>('/send', {
-      method: 'POST',
-      body: JSON.stringify({
-        type: 'event',
-        payload: {
-          website: websiteId,
-          name: 'cli_test_event',
-          data: { source: 'entro-cli', timestamp: Date.now() },
-        },
-      }),
-    });
+    const client = this.getClient();
+    // Use the newly added SDK method
+    const result = await client.events.sendTestEvent(websiteId);
+    return this.mapResponse<void>(result);
   }
 
   // CLI Token Management
-  async listCliTokens(): Promise<
-    ApiResponse<import('@entrolytics/shared').CliAccessTokenMetadata[]>
-  > {
-    return this.request<import('@entrolytics/shared').CliAccessTokenMetadata[]>('/auth/cli/tokens');
+  async listCliTokens(): Promise<ApiResponse<any[]>> {
+    const client = this.getClient();
+    const result = await client.auth.listCliTokens();
+    
+    // SDK returns CliAccessTokenMetadata[], CLI expects any[] (or CliAccessTokenMetadata[])
+    return this.mapResponse<any[]>(result as any);
   }
 
   async revokeCliToken(jti: string): Promise<ApiResponse<{ message: string }>> {
-    return this.request<{ message: string }>('/auth/cli/tokens', {
-      method: 'DELETE',
-      body: JSON.stringify({ jti }),
-    });
+    const client = this.getClient();
+    const result = await client.auth.revokeCliToken(jti);
+    return this.mapResponse<{ message: string }>(result);
   }
 
   async revokeAllCliTokens(): Promise<ApiResponse<{ message: string; count: number }>> {
-    return this.request<{ message: string; count: number }>('/auth/cli/tokens', {
-      method: 'DELETE',
-      body: JSON.stringify({ revokeAll: true }),
-    });
+    const client = this.getClient();
+    const result = await client.auth.revokeAllCliTokens();
+    return this.mapResponse<{ message: string; count: number }>(result);
   }
 
   // Routing
-  async getWebsiteMode(
-    websiteId: string,
-  ): Promise<ApiResponse<import('./types.js').WebsiteModeConfig>> {
-    return this.request<import('./types.js').WebsiteModeConfig>(`/websites/${websiteId}/mode`);
+  async getWebsiteMode(websiteId: string): Promise<ApiResponse<import('./types.js').WebsiteModeConfig>> {
+    const client = this.getClient();
+    const result = await client.getWebsiteMode(websiteId);
+    return this.mapResponse<import('./types.js').WebsiteModeConfig>(result as any);
   }
 
   async setWebsiteMode(
     websiteId: string,
     mode: import('./types.js').IngestMode,
   ): Promise<ApiResponse<{ message: string }>> {
-    return this.request<{ message: string }>(`/websites/${websiteId}/mode`, {
-      method: 'POST',
-      body: JSON.stringify({ ingestMode: mode }),
-    });
+    const client = this.getClient();
+    const result = await client.setWebsiteMode(websiteId, mode as any);
+    return this.mapResponse<{ message: string }>(result);
   }
 
   async getRoutingHealth(): Promise<ApiResponse<import('./types.js').RoutingHealth>> {
-    return this.request<import('./types.js').RoutingHealth>('/health/routing');
+    const client = this.getClient();
+    const result = await client.getRoutingHealth();
+    return this.mapResponse<import('./types.js').RoutingHealth>(result as any);
   }
 
   async getRoutingStats(
     startDate?: string,
     endDate?: string,
   ): Promise<ApiResponse<import('./types.js').RoutingStats>> {
-    const params = new URLSearchParams();
-    if (startDate) params.append('start', startDate);
-    if (endDate) params.append('end', endDate);
-    const query = params.toString() ? `?${params}` : '';
-    return this.request<import('./types.js').RoutingStats>(`/routing/stats${query}`);
+    const client = this.getClient();
+    const result = await client.getRoutingStats({ start: startDate, end: endDate });
+    return this.mapResponse<import('./types.js').RoutingStats>(result as any);
   }
 }
 

@@ -44,7 +44,7 @@ export default function RootLayout({ children }) {
 }
 
 // The Analytics component reads from .env.local:
-// NEXT_PUBLIC_ENTROLYTICS_NG_WEBSITE_ID=${siteId}
+// NEXT_PUBLIC_ENTROLYTICS_WEBSITE_ID=${siteId}
 // NEXT_PUBLIC_ENTROLYTICS_HOST=${host}`,
 
   astro: (host, siteId) => `// Install: npm install @entrolytics/astro-sdk

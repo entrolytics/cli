@@ -118,7 +118,7 @@ export function getEnvVarNames(framework: string | null): {
   // Most frameworks use NEXT_PUBLIC_ prefix or similar
   if (framework === 'nextjs') {
     return {
-      websiteId: 'NEXT_PUBLIC_ENTROLYTICS_NG_WEBSITE_ID',
+      websiteId: 'NEXT_PUBLIC_ENTROLYTICS_WEBSITE_ID',
       host: 'NEXT_PUBLIC_ENTROLYTICS_HOST',
       envFile: '.env.local',
     };
@@ -127,7 +127,7 @@ export function getEnvVarNames(framework: string | null): {
   // For Vue, use VITE_ prefix (Vite-based setups)
   if (framework === 'vue') {
     return {
-      websiteId: 'VITE_ENTROLYTICS_NG_WEBSITE_ID',
+      websiteId: 'VITE_ENTROLYTICS_WEBSITE_ID',
       host: 'VITE_ENTROLYTICS_HOST',
       envFile: '.env',
     };
@@ -136,7 +136,7 @@ export function getEnvVarNames(framework: string | null): {
   // Svelte/SvelteKit uses PUBLIC_ prefix
   if (framework === 'svelte') {
     return {
-      websiteId: 'PUBLIC_ENTROLYTICS_NG_WEBSITE_ID',
+      websiteId: 'PUBLIC_ENTROLYTICS_WEBSITE_ID',
       host: 'PUBLIC_ENTROLYTICS_HOST',
       envFile: '.env',
     };
@@ -145,7 +145,7 @@ export function getEnvVarNames(framework: string | null): {
   // Astro uses PUBLIC_
   if (framework === 'astro') {
     return {
-      websiteId: 'PUBLIC_ENTROLYTICS_NG_WEBSITE_ID',
+      websiteId: 'PUBLIC_ENTROLYTICS_WEBSITE_ID',
       host: 'PUBLIC_ENTROLYTICS_HOST',
       envFile: '.env',
     };
@@ -154,7 +154,7 @@ export function getEnvVarNames(framework: string | null): {
   // React (CRA or other) uses REACT_APP_
   if (framework === 'react') {
     return {
-      websiteId: 'REACT_APP_ENTROLYTICS_NG_WEBSITE_ID',
+      websiteId: 'REACT_APP_ENTROLYTICS_WEBSITE_ID',
       host: 'REACT_APP_ENTROLYTICS_HOST',
       envFile: '.env.local',
     };
@@ -162,7 +162,7 @@ export function getEnvVarNames(framework: string | null): {
 
   // Default to standard env vars
   return {
-    websiteId: 'ENTROLYTICS_NG_WEBSITE_ID',
+    websiteId: 'ENTROLYTICS_WEBSITE_ID',
     host: 'ENTROLYTICS_HOST',
     envFile: '.env',
   };

@@ -12,7 +12,7 @@ describe('CLI Framework Detection Alignment', () => {
   describe('Environment Variable Names', () => {
     it('Next.js should match shared constants', () => {
       const cliVars = {
-        websiteId: 'NEXT_PUBLIC_ENTROLYTICS_NG_WEBSITE_ID',
+        websiteId: 'NEXT_PUBLIC_ENTROLYTICS_WEBSITE_ID',
         host: 'NEXT_PUBLIC_ENTROLYTICS_HOST',
       };
       const sharedVars = getSharedEnvVarNames('nextjs');
@@ -23,7 +23,7 @@ describe('CLI Framework Detection Alignment', () => {
 
     it('React should match shared constants', () => {
       const cliVars = {
-        websiteId: 'VITE_ENTROLYTICS_NG_WEBSITE_ID',
+        websiteId: 'VITE_ENTROLYTICS_WEBSITE_ID',
         host: 'VITE_ENTROLYTICS_HOST',
       };
       const sharedVars = getSharedEnvVarNames('react');
@@ -34,7 +34,7 @@ describe('CLI Framework Detection Alignment', () => {
 
     it('Vue should match shared constants', () => {
       const cliVars = {
-        websiteId: 'VITE_ENTROLYTICS_NG_WEBSITE_ID',
+        websiteId: 'VITE_ENTROLYTICS_WEBSITE_ID',
         host: 'VITE_ENTROLYTICS_HOST',
       };
       const sharedVars = getSharedEnvVarNames('vue');
@@ -45,7 +45,7 @@ describe('CLI Framework Detection Alignment', () => {
 
     it('Svelte should match shared constants', () => {
       const cliVars = {
-        websiteId: 'PUBLIC_ENTROLYTICS_NG_WEBSITE_ID',
+        websiteId: 'PUBLIC_ENTROLYTICS_WEBSITE_ID',
         host: 'PUBLIC_ENTROLYTICS_HOST',
       };
       const sharedVars = getSharedEnvVarNames('svelte');
@@ -56,7 +56,7 @@ describe('CLI Framework Detection Alignment', () => {
 
     it('Astro should match shared constants', () => {
       const cliVars = {
-        websiteId: 'PUBLIC_ENTROLYTICS_NG_WEBSITE_ID',
+        websiteId: 'PUBLIC_ENTROLYTICS_WEBSITE_ID',
         host: 'PUBLIC_ENTROLYTICS_HOST',
       };
       const sharedVars = getSharedEnvVarNames('astro');

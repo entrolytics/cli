@@ -247,7 +247,7 @@ entro-ng config set <key> <value>      # Set config option
 
 **Available config keys:**
 
-- `apiHost` - Entrolytics API URL (default: https://ng.entrolytics.click)
+- `apiHost` - Entrolytics API URL (default: https://entrolytics.click)
 - `defaultSiteId` - Default website ID for commands
 - `outputFormat` - Output format: `table` or `json`
 
