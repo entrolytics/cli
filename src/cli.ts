@@ -2,6 +2,8 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import { loginCommand, logoutCommand, switchCommand, whoamiCommand } from './commands/auth.js';
 import { configCommand } from './commands/config.js';
+import { deploymentsCommand, trackDeploymentCommand } from './commands/deployments.js';
+import { formFieldsCommand, formsCommand } from './commands/forms.js';
 import { initCommand } from './commands/init.js';
 import { snippetCommand, testEventCommand } from './commands/integration.js';
 import {
@@ -31,6 +33,7 @@ import {
 } from './commands/tokens.js';
 import { updateCommand } from './commands/update.js';
 import { verifyCommand } from './commands/verify.js';
+import { vitalsCommand, vitalsPageCommand } from './commands/vitals.js';
 import { description, version } from './version.js';
 
 const program = new Command();
@@ -83,8 +86,8 @@ const tokens = program.command('tokens').description('Manage CLI access tokens')
 tokens.command('list').description('List all active CLI tokens').action(tokensListCommand);
 
 tokens
-  .command('revoke [jti]')
-  .description('Revoke a specific CLI token (defaults to current)')
+  .command('revoke <token-id>')
+  .description('Revoke a specific CLI token by ID')
   .action(tokensRevokeCommand);
 
 tokens
@@ -191,6 +194,59 @@ config
   .command('list')
   .description('List all config')
   .action(() => configCommand('list'));
+
+// Phase 2: Web Vitals commands
+const vitals = program.command('vitals').description('Web Vitals performance metrics');
+
+vitals
+  .command('overview [website-id]')
+  .description('Show Web Vitals overview')
+  .option('-p, --period <period>', 'Time period (24h, 7d, 30d)', '24h')
+  .action(vitalsCommand);
+
+vitals
+  .command('pages [website-id]')
+  .description('Show Web Vitals by page')
+  .option('-p, --period <period>', 'Time period', '24h')
+  .option('-l, --limit <number>', 'Number of pages', '20')
+  .action(vitalsPageCommand);
+
+// Phase 2: Form Analytics commands
+const forms = program.command('forms').description('Form analytics and conversions');
+
+forms
+  .command('list [website-id]')
+  .description('List form conversions')
+  .option('-p, --period <period>', 'Time period (24h, 7d, 30d)', '7d')
+  .action(formsCommand);
+
+forms
+  .command('fields <form-id> [website-id]')
+  .description('Show field-level metrics for a form')
+  .option('-p, --period <period>', 'Time period', '7d')
+  .action(formFieldsCommand);
+
+// Phase 2: Deployment Tracking commands
+const deployments = program
+  .command('deployments')
+  .description('Deployment tracking and comparison');
+
+deployments
+  .command('list [website-id]')
+  .description('List recent deployments')
+  .option('-p, --period <period>', 'Time period (7d, 30d, 90d)', '30d')
+  .option('-l, --limit <number>', 'Number of deployments', '20')
+  .action(deploymentsCommand);
+
+deployments
+  .command('track <deploy-id> [website-id]')
+  .description('Record a new deployment')
+  .option('-s, --source <source>', 'Deployment source (vercel, netlify, github, custom)', 'custom')
+  .option('--sha <sha>', 'Git commit SHA')
+  .option('--branch <branch>', 'Git branch name')
+  .option('--url <url>', 'Deployment URL')
+  .option('--env <environment>', 'Environment (production, staging, preview)')
+  .action(trackDeploymentCommand);
 
 // Error handling
 program.configureOutput({

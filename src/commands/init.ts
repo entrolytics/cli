@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { stdin as input, stdout as output } from 'node:process';
+import { createInterface } from 'node:readline/promises';
 import chalk from 'chalk';
 import ora from 'ora';
 import { api } from '../lib/api.js';
@@ -117,7 +117,7 @@ export async function initCommand(options: InitOptions = {}): Promise<void> {
 
   const host = getApiHost();
   const envVars: Record<string, string> = {
-    [envVarNames.websiteId]: websiteId!,
+    [envVarNames.websiteId]: websiteId,
     [envVarNames.host]: host,
   };
 
@@ -160,7 +160,7 @@ export async function initCommand(options: InitOptions = {}): Promise<void> {
   console.log(chalk.bold('Next steps:\n'));
 
   if (packageName) {
-    console.log(getIntegrationCode(framework, websiteId!, host));
+    console.log(getIntegrationCode(framework, websiteId, host));
   } else {
     // HTML snippet
     console.log(chalk.dim('Add this script tag to your HTML:'));
@@ -310,10 +310,29 @@ async function tokenBasedSetup(token: string, cwd: string, options: InitOptions)
  * Prompt user to install package
  */
 async function promptInstall(packageName: string, packageManager: string): Promise<boolean> {
-  // For now, auto-install. In the future, we can add prompts library
-  console.log(chalk.dim(`\nWould you like to install ${packageName}? (Y/n)`));
-  // TODO: Add proper prompt, for now return true
-  return true;
+  const prompt = `\nWould you like to install ${packageName} with ${packageManager}? (Y/n) `;
+  const rl = createInterface({ input, output });
+  try {
+    const answer = await rl.question(chalk.dim(prompt));
+    const normalized = answer.trim().toLowerCase();
+
+    if (!normalized) {
+      return true;
+    }
+
+    if (normalized.startsWith('y')) {
+      return true;
+    }
+
+    if (normalized.startsWith('n')) {
+      return false;
+    }
+
+    console.log(chalk.yellow('Please answer with y or n.'));
+    return await promptInstall(packageName, packageManager);
+  } finally {
+    rl.close();
+  }
 }
 
 /**

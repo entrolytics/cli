@@ -103,16 +103,63 @@ export async function linksStatsCommand(linkId: string): Promise<void> {
   console.log(chalk.bold('Link Statistics'));
   console.log();
 
-  const table = new Table({
+  const summaryTable = new Table({
+    head: ['Metric', 'Value'],
     style: { head: ['cyan'] },
   });
 
-  table.push(
-    { 'Total Clicks': stats.visitors.value.toLocaleString() },
-    { 'Unique Clicks': stats.pageviews.value.toLocaleString() },
+  summaryTable.push(
+    ['Total Clicks', stats.totalClicks.toLocaleString()],
+    ['Unique Visitors', stats.uniqueVisitors.toLocaleString()],
   );
 
-  console.log(table.toString());
+  console.log(summaryTable.toString());
+
+  if (stats.clicksByDay.length > 0) {
+    const trendTable = new Table({
+      head: ['Date', 'Clicks'],
+      style: { head: ['cyan'] },
+    });
+
+    const recentDays = stats.clicksByDay.slice(-14);
+    for (const day of recentDays) {
+      trendTable.push([new Date(day.date).toLocaleDateString(), day.clicks.toLocaleString()]);
+    }
+
+    console.log();
+    console.log(chalk.bold('Clicks by Day'));
+    console.log(trendTable.toString());
+  }
+
+  if (stats.topReferrers.length > 0) {
+    const referrerTable = new Table({
+      head: ['Referrer', 'Clicks'],
+      style: { head: ['cyan'] },
+    });
+
+    for (const referrer of stats.topReferrers.slice(0, 10)) {
+      referrerTable.push([referrer.referrer || 'Direct', referrer.clicks.toLocaleString()]);
+    }
+
+    console.log();
+    console.log(chalk.bold('Top Referrers'));
+    console.log(referrerTable.toString());
+  }
+
+  if (stats.topCountries.length > 0) {
+    const countryTable = new Table({
+      head: ['Country', 'Clicks'],
+      style: { head: ['cyan'] },
+    });
+
+    for (const country of stats.topCountries.slice(0, 10)) {
+      countryTable.push([country.country || 'Unknown', country.clicks.toLocaleString()]);
+    }
+
+    console.log();
+    console.log(chalk.bold('Top Countries'));
+    console.log(countryTable.toString());
+  }
 }
 
 export async function linksDeleteCommand(linkId: string): Promise<void> {

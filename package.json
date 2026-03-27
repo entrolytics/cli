@@ -1,25 +1,33 @@
 {
   "name": "@entrolytics/cli",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "CLI for Entrolytics - First-party growth analytics for the edge",
   "keywords": [
-    "entrolytics",
     "analytics",
     "cli",
-    "web-analytics",
-    "tracking"
+    "entrolytics",
+    "tracking",
+    "web-analytics"
   ],
-  "author": "Entrolytics <hey@entrolytics.click>",
-  "license": "MIT",
   "homepage": "https://entrolytics.click",
+  "bugs": {
+    "url": "https://github.com/entrolytics/cli/issues"
+  },
+  "license": "MIT",
+  "author": "Entrolytics <hey@entrolytics.click>",
   "repository": {
     "type": "git",
     "url": "https://github.com/entrolytics/cli",
     "directory": "entro-cli"
   },
-  "bugs": {
-    "url": "https://github.com/entrolytics/cli/issues"
+  "bin": {
+    "entro-ng": "./dist/cli.js"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -30,46 +38,41 @@
       "require": "./dist/index.cjs"
     }
   },
-  "bin": {
-    "entro-ng": "./dist/cli.js"
-  },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
-  "engines": {
-    "node": ">=22.x"
-  },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "dev": "tsup --watch",
-    "build": "tsup",
-    "lint": "biome check --write .",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "prepublishOnly": "pnpm build"
+    "build": "vp pack",
+    "check": "vp check",
+    "dev": "vp pack --watch",
+    "lint": "vp lint --fix . && vp fmt --write .",
+    "lint:fix-unsafe": "vp lint -f stylish --import-plugin --type-aware --type-check --vitest-plugin --node-plugin --fix --fix-suggestions --fix-dangerously src/",
+    "prepublishOnly": "vp run build",
+    "test": "vp test run",
+    "test:watch": "vp test",
+    "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
-    "@entrolytics/api-client": "^2.0.0",
-    "@entrolytics/shared": "^2.0.6",
+    "@entrolytics/shared": "2.4.0",
+    "@entrolytics/trpc-client": "2.2.2",
+    "@trpc/client": "^11.15.1",
     "chalk": "^5.6.2",
     "cli-table3": "^0.6.5",
-    "commander": "^14.0.2",
-    "conf": "^15.0.2",
+    "commander": "^14.0.3",
+    "conf": "^15.1.0",
     "open": "^11.0.0",
-    "ora": "^9.0.0",
-    "ws": "^8.18.3"
+    "ora": "^9.3.0",
+    "ws": "^8.20.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.10",
-    "@types/node": "^25.0.3",
+    "@types/node": "^25.5.0",
     "@types/ws": "^8.18.1",
-    "tsup": "^8.5.1",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.16"
-  }
+    "typescript": "^6.0.2",
+    "vite-plus": "latest",
+    "vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.14"
+  },
+  "engines": {
+    "node": ">=24.x"
+  },
+  "packageManager": "pnpm@10.33.0"
 }

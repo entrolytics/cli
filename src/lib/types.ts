@@ -1,3 +1,10 @@
+import type {
+  DeploymentSource,
+  FormEventType,
+  FormFieldType,
+  VitalType,
+} from '@entrolytics/shared';
+
 export interface Config {
   apiHost: string;
   defaultSiteId?: string;
@@ -44,6 +51,14 @@ export interface Link {
   clicks: number;
   createdAt: string;
   orgId?: string;
+}
+
+export interface LinkStats {
+  totalClicks: number;
+  uniqueVisitors: number;
+  clicksByDay: Array<{ date: string; clicks: number }>;
+  topReferrers: Array<{ referrer: string; clicks: number }>;
+  topCountries: Array<{ country: string; clicks: number }>;
 }
 
 export interface Stats {
@@ -181,4 +196,74 @@ export interface RoutingStats {
       p99: number;
     };
   };
+}
+
+// =============================================================================
+// Phase 2: Web Vitals Types
+// =============================================================================
+
+export type VitalMetric = VitalType;
+export type { DeploymentSource, FormEventType, FormFieldType };
+
+export interface VitalAggregate {
+  metricName: VitalMetric;
+  goodCount: number;
+  needsImprovementCount: number;
+  poorCount: number;
+  p75Value: number;
+  p95Value: number;
+  avgValue: number;
+  count: number;
+  goodPercentage: number;
+}
+
+export interface PageBreakdown {
+  path: string;
+  avgLcp: number | null;
+  avgInp: number | null;
+  avgCls: number | null;
+  avgTtfb: number | null;
+  avgFcp: number | null;
+  count: number;
+}
+
+// =============================================================================
+// Phase 2: Form Analytics Types
+// =============================================================================
+
+export interface FormConversion {
+  formId: string;
+  formName: string | null;
+  starts: number;
+  submits: number;
+  abandons: number;
+  conversionRate: number;
+}
+
+export interface FormFieldMetrics {
+  formId: string;
+  fieldName: string;
+  fieldType: FormFieldType;
+  focusCount: number;
+  blurCount: number;
+  errorCount: number;
+  avgTimeOnField: number;
+}
+
+// =============================================================================
+// Phase 2: Deployment Tracking Types
+// =============================================================================
+
+export interface Deployment {
+  id: string;
+  deployId: string;
+  websiteId: string;
+  gitSha: string | null;
+  gitBranch: string | null;
+  source: DeploymentSource;
+  deployUrl: string | null;
+  environment: string;
+  deployedAt: string;
+  pageviews: number;
+  visitors: number;
 }

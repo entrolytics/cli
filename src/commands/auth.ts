@@ -61,7 +61,7 @@ export async function loginCommand(): Promise<void> {
     try {
       const payload = JSON.parse(Buffer.from(data.accessToken.split('.')[1], 'base64').toString());
       jti = payload.jti;
-    } catch (e) {
+    } catch {
       // Non-fatal: JTI extraction failed, but authentication still works
       console.warn(chalk.yellow('Warning: Could not extract JTI from token'));
     }
@@ -151,7 +151,7 @@ export async function logoutCommand(): Promise<void> {
       } else {
         spinner.warn(chalk.yellow('Could not revoke token on server'));
       }
-    } catch (error) {
+    } catch {
       spinner.warn(chalk.yellow('Could not revoke token on server'));
     }
   }

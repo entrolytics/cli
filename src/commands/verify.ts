@@ -38,7 +38,7 @@ export async function verifyCommand(options: VerifyOptions = {}): Promise<void> 
   spinner.text = 'Fetching website details...';
 
   // 2. Verify website exists
-  const websiteResult = await api.getWebsite(websiteId!);
+  const websiteResult = await api.getWebsite(websiteId);
 
   if (websiteResult.error) {
     spinner.fail(chalk.red('Website not found'));
@@ -54,7 +54,7 @@ export async function verifyCommand(options: VerifyOptions = {}): Promise<void> 
   // 3. Send test event
   spinner.start('Sending test event...');
 
-  const testResult = await api.sendTestEvent(websiteId!);
+  const testResult = await api.sendTestEvent(websiteId);
 
   if (testResult.error) {
     spinner.fail(chalk.red('Failed to send test event'));
@@ -70,7 +70,7 @@ export async function verifyCommand(options: VerifyOptions = {}): Promise<void> 
   const now = Date.now();
   const oneDayAgo = now - 24 * 60 * 60 * 1000;
 
-  const statsResult = await api.getStats(websiteId!, oneDayAgo, now);
+  const statsResult = await api.getStats(websiteId, oneDayAgo, now);
 
   if (statsResult.error) {
     spinner.warn(chalk.yellow('Could not fetch recent stats'));

@@ -1,7 +1,7 @@
 import Conf from 'conf';
 import type { Config } from './types.js';
 
-const DEFAULT_API_HOST = 'https://entrolytics.click';
+const DEFAULT_API_HOST = 'https://api.entrolytics.click';
 
 const configStore = new Conf<Config>({
   projectName: 'entro-ng-cli',

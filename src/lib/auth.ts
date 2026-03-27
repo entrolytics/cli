@@ -52,7 +52,7 @@ export async function validateTokenWithServer(): Promise<boolean> {
     // Any other error, assume token might be valid (network issues, etc.)
     // but 2xx means definitely valid
     return response.ok;
-  } catch (error) {
+  } catch {
     // Network error - can't determine, assume valid to avoid blocking
     return true;
   }
