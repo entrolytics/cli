@@ -19,7 +19,7 @@ export interface AuthCredentials {
   email: string;
   displayName?: string;
   organization?: Organization;
-  jti?: string; // JWT ID for token revocation tracking
+  tokenId?: string;
 }
 
 export interface Organization {
@@ -29,10 +29,7 @@ export interface Organization {
 }
 
 export interface Website {
-  /** Primary key - matches API field name */
   websiteId: string;
-  /** @deprecated Use websiteId instead */
-  id?: string;
   name: string;
   domain: string;
   createdAt: string;
@@ -92,13 +89,13 @@ export interface ApiStats {
   visitors: number;
   visits: number;
   bounces: number;
-  totaltime: number;
+  totalTime: number;
   comparison?: {
     pageviews: number;
     visitors: number;
     visits: number;
     bounces: number;
-    totaltime: number;
+    totalTime: number;
   };
 }
 
@@ -120,8 +117,6 @@ export interface User {
   email: string;
   role: string;
   createdAt: string;
-  /** @deprecated Use displayName instead */
-  username?: string;
   firstName?: string;
   lastName?: string;
   imageUrl?: string;
@@ -255,15 +250,14 @@ export interface FormFieldMetrics {
 // =============================================================================
 
 export interface Deployment {
-  id: string;
   deployId: string;
-  websiteId: string;
   gitSha: string | null;
   gitBranch: string | null;
   source: DeploymentSource;
   deployUrl: string | null;
-  environment: string;
+  environment: string | null;
   deployedAt: string;
   pageviews: number;
   visitors: number;
+  errors: number;
 }

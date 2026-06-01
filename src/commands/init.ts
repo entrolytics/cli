@@ -3,7 +3,7 @@ import { stdin as input, stdout as output } from 'node:process';
 import { createInterface } from 'node:readline/promises';
 import chalk from 'chalk';
 import ora from 'ora';
-import { api } from '../lib/api.js';
+import * as api from '../lib/api.js';
 import { displayAuthErrorHelp, isAuthError, isAuthenticated } from '../lib/auth.js';
 import { getApiHost } from '../lib/config.js';
 import { hasEnvVars, writeEnvFile } from '../utils/env.js';
@@ -234,7 +234,7 @@ async function tokenBasedSetup(token: string, cwd: string, options: InitOptions)
     spinner.start('Configuring environment...');
     const envVarNames = getEnvVarNames(framework);
     const envVars: Record<string, string> = {
-      [envVarNames.websiteId]: website.id || website.websiteId,
+      [envVarNames.websiteId]: website.websiteId,
       [envVarNames.host]: configuredApiHost,
     };
 
@@ -276,14 +276,14 @@ async function tokenBasedSetup(token: string, cwd: string, options: InitOptions)
     // Show integration code
     if (packageName) {
       console.log(
-        getIntegrationCode(framework, website.id || website.websiteId, configuredApiHost),
+        getIntegrationCode(framework, website.websiteId, configuredApiHost),
       );
     } else {
       // HTML snippet
       console.log(chalk.bold('Add this script to your HTML:\n'));
       console.log(
         chalk.cyan(
-          `  <script defer src="${configuredApiHost}/script.js" data-website-id="${website.id || website.websiteId}"></script>\n`,
+          `  <script defer src="${configuredApiHost}/script.js" data-website-id="${website.websiteId}"></script>\n`,
         ),
       );
     }

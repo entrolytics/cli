@@ -1,6 +1,6 @@
 {
   "name": "@entrolytics/cli",
-  "version": "2.2.0",
+  "version": "2.3.1",
   "description": "CLI for Entrolytics - First-party growth analytics for the edge",
   "keywords": [
     "analytics",
@@ -53,26 +53,27 @@
     "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
-    "@entrolytics/shared": "2.4.0",
-    "@entrolytics/trpc-client": "2.2.2",
-    "@trpc/client": "^11.15.1",
+    "@entrolytics/shared": "2.4.1",
+    "@entrolytics/trpc-client": "2.3.0",
+    "@trpc/client": "^11.17.0",
     "chalk": "^5.6.2",
     "cli-table3": "^0.6.5",
-    "commander": "^14.0.3",
+    "commander": "^15.0.0",
     "conf": "^15.1.0",
     "open": "^11.0.0",
-    "ora": "^9.3.0",
-    "ws": "^8.20.0"
+    "ora": "^9.4.0",
+    "ws": "^8.21.0"
   },
   "devDependencies": {
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.9.1",
     "@types/ws": "^8.18.1",
-    "typescript": "^6.0.2",
-    "vite-plus": "latest",
-    "vitest": "npm:@voidzero-dev/vite-plus-test@^0.1.14"
+    "typescript": "^6.0.3",
+    "vite": "catalog:",
+    "vite-plus": "^0.1.23",
+    "vitest": "catalog:"
   },
   "engines": {
     "node": ">=24.x"
   },
-  "packageManager": "pnpm@10.33.0"
+  "packageManager": "pnpm@11.5.0"
 }

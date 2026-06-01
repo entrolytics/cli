@@ -1,15 +1,83 @@
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import os from 'node:os';
+import chalk from 'chalk';
 import Conf from 'conf';
 import { getApiHost } from './config.js';
 import type { AuthCredentials } from './types.js';
 
+function getMachineSecret(): string {
+  try {
+    switch (process.platform) {
+      case 'darwin': {
+        const output = execFileSync('ioreg', ['-rd1', '-c', 'IOPlatformExpertDevice'], {
+          encoding: 'utf8',
+        });
+        const match = output.match(/"IOPlatformUUID"\s*=\s*"([^"]+)"/);
+        if (match?.[1]) {
+          return match[1];
+        }
+        break;
+      }
+      case 'linux': {
+        const machineId = readFileSync('/etc/machine-id', 'utf8').trim();
+        if (machineId) {
+          return machineId;
+        }
+        break;
+      }
+      case 'win32': {
+        const output = execFileSync(
+          'reg',
+          ['query', 'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Cryptography', '/v', 'MachineGuid'],
+          { encoding: 'utf8' },
+        );
+        const match = output.match(/MachineGuid\s+REG_SZ\s+([^\r\n]+)/);
+        if (match?.[1]) {
+          return match[1].trim();
+        }
+        break;
+      }
+    }
+  } catch {}
+
+  return `${os.hostname()}:${os.userInfo().username}:${os.homedir()}`;
+}
+
+function getEncryptionKey(): string {
+  return createHash('sha256').update(`entro-cli:${getMachineSecret()}`).digest('hex');
+}
+
+function normalizeExpiresAt(value: unknown): number | undefined {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const parsed = Date.parse(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  return undefined;
+}
+
 const authStore = new Conf<{ credentials?: AuthCredentials }>({
   projectName: 'entro-cli',
   configName: 'auth',
-  encryptionKey: 'entro-cli-auth-key', // In production, use system keychain
+  encryptionKey: getEncryptionKey(),
 });
 
 export function getAuthCredentials(): AuthCredentials | undefined {
-  return authStore.get('credentials');
+  const credentials = authStore.get('credentials');
+  if (!credentials) {
+    return undefined;
+  }
+
+  return {
+    ...credentials,
+    expiresAt: normalizeExpiresAt(credentials.expiresAt),
+  };
 }
 
 export function getAuthToken(): string | undefined {
@@ -22,7 +90,7 @@ export function isAuthenticated(): boolean {
   if (!credentials?.accessToken) return false;
 
   // Check if token is expired
-  if (credentials.expiresAt && Date.now() > credentials.expiresAt) {
+  if (credentials.expiresAt !== undefined && Date.now() > credentials.expiresAt) {
     return false;
   }
 
@@ -76,7 +144,10 @@ export async function isAuthenticatedWithValidation(validateWithServer = false):
 }
 
 export function saveAuthCredentials(credentials: AuthCredentials): void {
-  authStore.set('credentials', credentials);
+  authStore.set('credentials', {
+    ...credentials,
+    expiresAt: normalizeExpiresAt(credentials.expiresAt),
+  });
 }
 
 export function clearAuth(): void {
@@ -110,7 +181,6 @@ export function isAuthError(error: string | undefined, status?: number): boolean
  * Display helpful message for authentication errors
  */
 export function displayAuthErrorHelp(): void {
-  const chalk = require('chalk');
   console.log(chalk.yellow('\n⚠️  Your session is invalid or expired.'));
   console.log(chalk.dim('Please logout and login again:\n'));
   console.log(chalk.cyan('  entro-ng logout'));

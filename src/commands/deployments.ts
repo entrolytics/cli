@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import Table from 'cli-table3';
 import ora from 'ora';
-import { api } from '../lib/api.js';
+import * as api from '../lib/api.js';
 import { requireAuth } from '../lib/auth.js';
 import { getConfig, getDefaultSiteId } from '../lib/config.js';
 import type { DeploymentSource } from '../lib/types.js';

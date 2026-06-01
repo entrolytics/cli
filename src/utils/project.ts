@@ -151,12 +151,12 @@ export function getEnvVarNames(framework: string | null): {
     };
   }
 
-  // React (CRA or other) uses REACT_APP_
+  // React uses Vite env vars
   if (framework === 'react') {
     return {
-      websiteId: 'REACT_APP_ENTROLYTICS_WEBSITE_ID',
-      host: 'REACT_APP_ENTROLYTICS_HOST',
-      envFile: '.env.local',
+      websiteId: 'VITE_ENTROLYTICS_WEBSITE_ID',
+      host: 'VITE_ENTROLYTICS_HOST',
+      envFile: '.env',
     };
   }
 

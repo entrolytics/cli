@@ -1,7 +1,7 @@
 import { createServer } from 'node:http';
 import chalk from 'chalk';
 import ora from 'ora';
-import { api } from '../lib/api.js';
+import * as api from '../lib/api.js';
 import {
   clearAuth,
   getAuthCredentials,
@@ -56,24 +56,14 @@ export async function loginCommand(): Promise<void> {
 
     const data = await response.json();
 
-    // Decode token to extract JTI for revocation tracking
-    let jti: string | undefined;
-    try {
-      const payload = JSON.parse(Buffer.from(data.accessToken.split('.')[1], 'base64').toString());
-      jti = payload.jti;
-    } catch {
-      // Non-fatal: JTI extraction failed, but authentication still works
-      console.warn(chalk.yellow('Warning: Could not extract JTI from token'));
-    }
-
     saveAuthCredentials({
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
-      expiresAt: data.expiresAt,
+      expiresAt: typeof data.expiresAt === 'string' ? Date.parse(data.expiresAt) : data.expiresAt,
       userId: data.user.id,
       email: data.user.email,
       displayName: data.user.displayName,
-      jti,
+      tokenId: data.tokenId,
     });
 
     spinner.succeed(chalk.green(`Logged in as ${data.user.email}`));
@@ -132,7 +122,7 @@ async function waitForCallback(): Promise<string> {
 export async function logoutCommand(): Promise<void> {
   const credentials = getAuthCredentials();
 
-  if (credentials?.jti) {
+  if (credentials?.tokenId) {
     const spinner = ora('Revoking access token...').start();
 
     try {
@@ -143,7 +133,7 @@ export async function logoutCommand(): Promise<void> {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${credentials.accessToken}`,
         },
-        body: JSON.stringify({ jti: credentials.jti }),
+        body: JSON.stringify({ tokenId: credentials.tokenId }),
       });
 
       if (response.ok) {

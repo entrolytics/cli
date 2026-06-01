@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import ora from 'ora';
-import { api } from '../lib/api.js';
+import * as api from '../lib/api.js';
 import { requireAuth } from '../lib/auth.js';
 import { readEnvFile } from '../utils/env.js';
 import { detectProject, getEnvVarNames } from '../utils/project.js';

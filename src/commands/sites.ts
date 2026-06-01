@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import Table from 'cli-table3';
 import ora from 'ora';
-import { api } from '../lib/api.js';
+import * as api from '../lib/api.js';
 import { displayAuthErrorHelp, isAuthError, requireAuth } from '../lib/auth.js';
 import { getConfig } from '../lib/config.js';
 
@@ -44,7 +44,12 @@ export async function sitesListCommand(): Promise<void> {
   });
 
   for (const site of websites) {
-    table.push([site.id, site.domain, site.name, new Date(site.createdAt).toLocaleDateString()]);
+    table.push([
+      site.websiteId,
+      site.domain,
+      site.name,
+      new Date(site.createdAt).toLocaleDateString(),
+    ]);
   }
 
   console.log(table.toString());
@@ -70,12 +75,12 @@ export async function sitesAddCommand(domain: string): Promise<void> {
 
   const website = result.data!;
   spinner.succeed(chalk.green(`Website added: ${website.domain}`));
-  console.log(chalk.dim(`Website ID: ${website.id}`));
+  console.log(chalk.dim(`Website ID: ${website.websiteId}`));
   console.log();
   console.log(chalk.bold('Next steps:'));
   console.log(`  1. Run ${chalk.cyan('entro-ng snippet')} to get the tracking code`);
   console.log(`  2. Add it to your website's <head> tag`);
-  console.log(`  3. Run ${chalk.cyan(`entro-ng sites verify ${website.id}`)} to confirm`);
+  console.log(`  3. Run ${chalk.cyan(`entro-ng sites verify ${website.websiteId}`)} to confirm`);
 }
 
 export async function sitesRemoveCommand(websiteId: string): Promise<void> {
@@ -167,7 +172,7 @@ export async function sitesInfoCommand(websiteId: string): Promise<void> {
   }
 
   console.log(chalk.bold('Website Details:'));
-  console.log(`  ID: ${chalk.cyan(website.id)}`);
+  console.log(`  ID: ${chalk.cyan(website.websiteId)}`);
   console.log(`  Domain: ${chalk.cyan(website.domain)}`);
   console.log(`  Name: ${chalk.cyan(website.name)}`);
   console.log(`  Created: ${chalk.cyan(new Date(website.createdAt).toLocaleString())}`);

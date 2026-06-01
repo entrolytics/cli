@@ -1,6 +1,6 @@
 // Re-export public API for programmatic usage
 
-export { api } from './lib/api.js';
+export * from './lib/api.js';
 export {
   clearAuth,
   getAuthToken,

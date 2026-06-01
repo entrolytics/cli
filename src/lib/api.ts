@@ -6,16 +6,12 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import {
-  type AppRouter,
-  type CreateTRPCClient,
-  createClient,
-  type TRPCClientError,
-} from '@entrolytics/trpc-client';
-import { getAuthToken } from './auth.js';
+import { type AppRouter, createClient, type TRPCClientError } from '@entrolytics/trpc-client';
+import { getAuthCredentials, getAuthToken } from './auth.js';
 import { getApiHost } from './config.js';
 import type {
   ApiResponse,
+  Deployment,
   IngestMode,
   Link,
   LinkStats,
@@ -54,17 +50,48 @@ function handleTRPCError<T>(error: unknown): ApiResponse<T> {
   };
 }
 
+function mapWebsite(site: {
+  id: string;
+  name: string;
+  domain: string;
+  shareId: string | null;
+  createdAt: Date | null;
+  userId: string | null;
+  orgId: string | null;
+}): Website {
+  return {
+    websiteId: site.id,
+    name: site.name,
+    domain: site.domain,
+    shareId: site.shareId ?? undefined,
+    createdAt: site.createdAt?.toISOString() || '',
+    userId: site.userId ?? undefined,
+    orgId: site.orgId ?? undefined,
+  };
+}
+
+function resolveOverviewTotalTime(result: {
+  totalTime?: number;
+  totaltime?: number;
+  comparison?: { totalTime?: number; totaltime?: number };
+}) {
+  return {
+    comparisonTotalTime: result.comparison?.totalTime ?? result.comparison?.totaltime ?? 0,
+    totalTime: result.totalTime ?? result.totaltime ?? 0,
+  };
+}
+
 /**
  * Create authenticated tRPC client
  * Uses canonical AppRouter for type-safe API calls
  */
-function getTRPCClient(): CreateTRPCClient<AppRouter> {
+function getTRPCClient() {
   const token = getAuthToken();
   const apiUrl = getApiHost();
 
   return createClient<AppRouter>({
     apiUrl,
-    apiKey: token,
+    ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {}),
   });
 }
 
@@ -86,7 +113,7 @@ export async function getUser(): Promise<ApiResponse<User>> {
         id: result.user.id,
         email: result.user.email || '',
         displayName: result.user.displayName || '',
-        role: result.grant || 'user',
+        role: result.user.role,
         createdAt: result.user.createdAt?.toISOString() || '',
         firstName: result.user.firstName ?? undefined,
         lastName: result.user.lastName ?? undefined,
@@ -109,10 +136,10 @@ export async function getOrgs(): Promise<ApiResponse<Organization[]>> {
     const orgs = await client.orgs.list.query();
 
     return {
-      data: orgs.map(org => ({
+      data: orgs.map((org: { id: string; name: string; slug: string | null }) => ({
         id: org.id,
         name: org.name,
-        slug: org.slug,
+        slug: org.slug ?? undefined,
       })),
       status: 200,
     };
@@ -128,29 +155,10 @@ export async function getOrgs(): Promise<ApiResponse<Organization[]>> {
 export async function getWebsites(): Promise<ApiResponse<Website[]>> {
   try {
     const client = getTRPCClient();
-    const websites = await client.websites.list.query();
+    const websites = await client.websites.list.query(undefined as never);
 
     return {
-      data: websites.map(
-        (site: {
-          id: string;
-          name: string;
-          domain: string;
-          shareId: string | null;
-          createdAt: Date | null;
-          userId: string;
-          orgId: string | null;
-        }) => ({
-          websiteId: site.id,
-          id: site.id,
-          name: site.name,
-          domain: site.domain,
-          shareId: site.shareId ?? undefined,
-          createdAt: site.createdAt?.toISOString() || '',
-          userId: site.userId,
-          orgId: site.orgId ?? undefined,
-        }),
-      ),
+      data: websites.map(mapWebsite),
       status: 200,
     };
   } catch (error) {
@@ -164,16 +172,7 @@ export async function getWebsite(id: string): Promise<ApiResponse<Website>> {
     const site = await client.websites.get.query({ websiteId: id });
 
     return {
-      data: {
-        websiteId: site.id,
-        id: site.id,
-        name: site.name,
-        domain: site.domain,
-        shareId: site.shareId ?? undefined,
-        createdAt: site.createdAt?.toISOString() || '',
-        userId: site.userId,
-        orgId: site.orgId ?? undefined,
-      },
+      data: mapWebsite(site),
       status: 200,
     };
   } catch (error) {
@@ -190,16 +189,7 @@ export async function createWebsite(domain: string, name?: string): Promise<ApiR
     });
 
     return {
-      data: {
-        websiteId: site.id,
-        id: site.id,
-        name: site.name,
-        domain: site.domain,
-        shareId: site.shareId ?? undefined,
-        createdAt: site.createdAt?.toISOString() || '',
-        userId: site.userId,
-        orgId: site.orgId ?? undefined,
-      },
+      data: mapWebsite(site),
       status: 201,
     };
   } catch (error) {
@@ -237,6 +227,7 @@ export async function getStats(
       startDate,
       endDate,
     });
+    const { totalTime, comparisonTotalTime } = resolveOverviewTotalTime(result);
 
     // Map tRPC response to CLI Stats format
     return {
@@ -258,8 +249,8 @@ export async function getStats(
           change: calcChange(result.bounces, result.comparison?.bounces ?? 0),
         },
         totalTime: {
-          value: result.totalTime,
-          change: calcChange(result.totalTime, result.comparison?.totalTime ?? 0),
+          value: totalTime,
+          change: calcChange(totalTime, comparisonTotalTime),
         },
       },
       status: 200,
@@ -289,8 +280,8 @@ export async function getTopPages(
 
     // Map to CLI TopResult format
     return {
-      data: result.map((item: { path: string; views: number }) => ({
-        x: item.path,
+      data: result.map((item: { path: string | null; views: number }) => ({
+        x: item.path ?? '',
         y: item.views,
       })),
       status: 200,
@@ -320,8 +311,8 @@ export async function getTopReferrers(
 
     // Map to CLI TopResult format
     return {
-      data: result.map((item: { referrer: string; visits: number }) => ({
-        x: item.referrer || 'Direct',
+      data: result.map((item: { referrer_domain?: string | null; visits: number }) => ({
+        x: item.referrer_domain || 'Direct',
         y: item.visits,
       })),
       status: 200,
@@ -350,10 +341,12 @@ export async function getTopCountries(
 
     // Map to CLI TopResult format, limit results
     return {
-      data: result.slice(0, limit).map((item: { country: string; visitors: number }) => ({
-        x: item.country || 'Unknown',
-        y: item.visitors,
-      })),
+      data: result
+        .slice(0, limit)
+        .map((item: { country: string | null; unique_visitors?: number; pageviews: number }) => ({
+          x: item.country || 'Unknown',
+          y: item.unique_visitors ?? item.pageviews,
+        })),
       status: 200,
     };
   } catch (error) {
@@ -382,7 +375,7 @@ export async function getRealtimeVisitors(
 
     return {
       data: {
-        count: result.sessions?.length ?? 0,
+        count: Array.isArray(result) ? result.length : 0,
       },
       status: 200,
     };
@@ -408,7 +401,7 @@ export async function getLinks(_orgId?: string): Promise<ApiResponse<Link[]>> {
           url: string;
           slug: string;
           createdAt: Date | null;
-          clicks: number;
+          clicks?: number;
           orgId: string | null;
         }) => ({
           id: link.id,
@@ -416,7 +409,7 @@ export async function getLinks(_orgId?: string): Promise<ApiResponse<Link[]>> {
           slug: link.slug,
           name: link.name,
           shortUrl: `https://entro.link/${link.slug}`,
-          clicks: link.clicks,
+          clicks: link.clicks ?? 0,
           createdAt: link.createdAt?.toISOString() || '',
           orgId: link.orgId ?? undefined,
         }),
@@ -435,12 +428,22 @@ export async function createLink(
   orgId?: string,
 ): Promise<ApiResponse<Link>> {
   try {
+    const auth = getAuthCredentials();
+    const resolvedOrgId = orgId ?? auth?.organization?.id;
+
+    if (!resolvedOrgId) {
+      return {
+        error: 'No active organization selected. Run `entro-ng switch <org>` first.',
+        status: 400,
+      };
+    }
+
     const client = getTRPCClient();
     const link = await client.links.create.mutate({
       url,
       name: name || new URL(url).hostname,
-      slug: slug || '',
-      orgId,
+      slug: slug || randomUUID().slice(0, 8),
+      orgId: resolvedOrgId,
     });
 
     return {
@@ -799,50 +802,10 @@ export async function getRoutingStats(
 }
 
 // =============================================================================
-// Legacy API object (for backward compatibility)
-// =============================================================================
-
-export const api = {
-  getUser,
-  getOrgs,
-  getWebsites,
-  getWebsite,
-  createWebsite,
-  deleteWebsite,
-  getStats,
-  getTopPages,
-  getTopReferrers,
-  getTopCountries,
-  getRealtimeVisitors,
-  getLinks,
-  createLink,
-  getLinkStats,
-  deleteLink,
-  sendTestEvent,
-  listCliTokens,
-  revokeCliToken,
-  revokeAllCliTokens,
-  getWebsiteMode,
-  setWebsiteMode,
-  getRoutingHealth,
-  getRoutingStats,
-  // Phase 2: Web Vitals
-  getVitalsOverview,
-  getVitalsPageBreakdown,
-  // Phase 2: Form Analytics
-  getFormConversions,
-  getFormFieldMetrics,
-  // Phase 2: Deployments
-  getDeployments,
-  trackDeployment,
-};
-
-// =============================================================================
 // Phase 2: Web Vitals
 // =============================================================================
 
 import type {
-  Deployment,
   DeploymentSource,
   FormConversion,
   FormFieldMetrics,
@@ -948,7 +911,21 @@ export async function getDeployments(
       endDate,
       limit,
     });
-    return { data: result as Deployment[], status: 200 };
+    return {
+      data: result.map(deployment => ({
+        ...deployment,
+        deployUrl: deployment.deployUrl ?? null,
+        deployedAt:
+          deployment.deployedAt instanceof Date
+            ? deployment.deployedAt.toISOString()
+            : String(deployment.deployedAt),
+        environment: deployment.environment ?? null,
+        errors: deployment.errors ?? 0,
+        gitBranch: deployment.gitBranch ?? null,
+        gitSha: deployment.gitSha ?? null,
+      })) as Deployment[],
+      status: 200,
+    };
   } catch (error) {
     return handleTRPCError(error);
   }
