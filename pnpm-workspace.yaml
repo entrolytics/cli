@@ -1,13 +1,9 @@
-catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@^0.1.23
-  vite-plus: latest
-  vitest: npm:@voidzero-dev/vite-plus-test@^0.1.23
 onlyBuiltDependencies:
   - esbuild
 overrides:
   trpc: link:../client/trpc
-  vite: 'catalog:'
-  vitest: 'catalog:'
+  vite: 'latest'
+  vitest: 'latest'
 peerDependencyRules:
   allowAny:
     - vite

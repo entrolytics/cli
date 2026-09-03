@@ -155,7 +155,7 @@ export async function getOrgs(): Promise<ApiResponse<Organization[]>> {
 export async function getWebsites(): Promise<ApiResponse<Website[]>> {
   try {
     const client = getTRPCClient();
-    const websites = await client.websites.list.query(undefined as never);
+    const websites = await client.websites.list.query({});
 
     return {
       data: websites.map(mapWebsite),
@@ -568,6 +568,8 @@ export async function sendTestEvent(websiteId: string): Promise<ApiResponse<void
 
     const payload = {
       websiteId,
+      eventId: randomUUID(),
+      timestamp: new Date().toISOString(),
       sessionId: randomUUID(),
       visitorId: randomUUID(),
       url,
@@ -825,7 +827,7 @@ export async function getVitalsOverview(
       startDate,
       endDate,
     });
-    return { data: result as VitalAggregate[], status: 200 };
+    return { data: result, status: 200 };
   } catch (error) {
     return handleTRPCError(error);
   }
@@ -845,7 +847,7 @@ export async function getVitalsPageBreakdown(
       endDate,
       limit,
     });
-    return { data: result as PageBreakdown[], status: 200 };
+    return { data: result, status: 200 };
   } catch (error) {
     return handleTRPCError(error);
   }
@@ -867,7 +869,7 @@ export async function getFormConversions(
       startDate,
       endDate,
     });
-    return { data: result as FormConversion[], status: 200 };
+    return { data: result, status: 200 };
   } catch (error) {
     return handleTRPCError(error);
   }
@@ -887,7 +889,7 @@ export async function getFormFieldMetrics(
       startDate,
       endDate,
     });
-    return { data: result as FormFieldMetrics[], status: 200 };
+    return { data: result, status: 200 };
   } catch (error) {
     return handleTRPCError(error);
   }
@@ -923,7 +925,7 @@ export async function getDeployments(
         errors: deployment.errors ?? 0,
         gitBranch: deployment.gitBranch ?? null,
         gitSha: deployment.gitSha ?? null,
-      })) as Deployment[],
+      })),
       status: 200,
     };
   } catch (error) {
