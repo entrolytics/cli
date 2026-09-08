@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite-plus';
 
 export default defineConfig({
-  pack: {
+  pack: { deps: { resolveDepSubpath: true },
     entry: {
       index: 'src/index.ts',
       cli: 'src/cli.ts',
