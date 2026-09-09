@@ -188,6 +188,12 @@ export async function createWebsite(domain: string, name?: string): Promise<ApiR
       name: name || domain,
     });
 
+    // The procedure returns the inserted row, which is undefined if the insert matched nothing.
+    // Reading through it crashed with a TypeError instead of reporting a failed creation.
+    if (!site) {
+      return { error: 'Website was not created: the server returned no record', status: 502 };
+    }
+
     return {
       data: mapWebsite(site),
       status: 201,
@@ -445,6 +451,12 @@ export async function createLink(
       slug: slug || randomUUID().slice(0, 8),
       orgId: resolvedOrgId,
     });
+
+    // Same shape as createWebsite: an insert that returned no row must be reported, not
+    // dereferenced.
+    if (!link) {
+      return { error: 'Link was not created: the server returned no record', status: 502 };
+    }
 
     return {
       data: {
