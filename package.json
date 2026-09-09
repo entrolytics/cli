@@ -42,14 +42,14 @@
     "access": "public"
   },
   "scripts": {
-    "build": "vp pack",
-    "check": "vp check",
-    "dev": "vp pack --watch",
-    "lint": "vp lint --fix . && vp fmt --write .",
-    "lint:fix-unsafe": "vp lint -f stylish --import-plugin --type-aware --type-check --vitest-plugin --node-plugin --fix --fix-suggestions --fix-dangerously src/",
-    "prepublishOnly": "vp run build",
-    "test": "vp test run",
-    "test:watch": "vp test",
+    "build": "tsdown",
+    "check": "tsc --noEmit",
+    "dev": "tsdown --watch",
+    "lint": "oxlint --fix . && oxfmt --write .",
+    "lint:fix-unsafe": "oxlint -f stylish --import-plugin --type-aware --type-check --vitest-plugin --node-plugin --fix --fix-suggestions --fix-dangerously src/",
+    "prepublishOnly": "pnpm build",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -67,9 +67,11 @@
   "devDependencies": {
     "@types/node": "^26.5.0",
     "@types/ws": "^8.18.1",
+    "oxfmt": "^0.67.0",
+    "oxlint": "^1.82.0",
+    "tsdown": "^0.23.0",
     "typescript": "next",
-    "vite": "catalog:",
-    "vite-plus": "catalog:"
+    "vitest": "^5.0.0"
   },
   "engines": {
     "node": ">=24.20.0"

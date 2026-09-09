@@ -6,7 +6,7 @@
  */
 
 import { getEnvVarNames as getSharedEnvVarNames } from '@entrolytics/shared';
-import { describe, expect, it } from 'vite-plus/test';
+import { describe, expect, it } from 'vitest';
 
 describe('CLI Framework Detection Alignment', () => {
   describe('Environment Variable Names', () => {

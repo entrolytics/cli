@@ -2,22 +2,11 @@ onlyBuiltDependencies:
   - esbuild
 overrides:
   trpc: link:../client/trpc
-  vite@*: 'catalog:'
-peerDependencyRules:
-  allowAny:
-    - vite
-  allowedVersions:
-    vite: '*'
 
 # TypeScript tracks the `next` nightly, which is republished daily and can never
 # satisfy a 24h minimum age. Matches entrolytics/pnpm-workspace.yaml.
 minimumReleaseAge: 0
-catalog:
-  vite: npm:@voidzero-dev/vite-plus-core@0.3.1
-  vite-plus: 0.3.1
 minimumReleaseAgeExclude:
-  - vite-plus
-  - '@voidzero-dev/*'
   - oxlint
   - '@oxlint/*'
   - oxlint-tsgolint
@@ -26,3 +15,4 @@ minimumReleaseAgeExclude:
   - '@oxfmt/*'
   - vitest
   - '@vitest/*'
+  - tsdown

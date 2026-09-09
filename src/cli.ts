@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import chalk from 'chalk';
 import { Command } from 'commander';
 import { loginCommand, logoutCommand, switchCommand, whoamiCommand } from './commands/auth.js';
