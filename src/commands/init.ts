@@ -197,8 +197,8 @@ async function tokenBasedSetup(token: string, cwd: string, options: InitOptions)
 
       if (error.error === 'Token expired') {
         console.log(chalk.dim('\n💡 Your setup token has expired.'));
-        console.log(chalk.dim('Generate a new one from your dashboard:'));
-        console.log(chalk.cyan('   https://entrolytics.click/onboarding/install\n'));
+        console.log(chalk.dim("Create a new one under Tracking Code in your website's settings:"));
+        console.log(chalk.cyan('   https://entrolytics.dev/dashboard/websites\n'));
       } else if (error.error === 'Token already used') {
         console.log(chalk.dim('\n💡 This token has already been used.'));
         console.log(chalk.dim('You can run without a token to continue setup:\n'));
