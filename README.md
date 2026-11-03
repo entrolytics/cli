@@ -3,7 +3,7 @@
 
 [![npm](https://img.shields.io/npm/v/@entrolytics/cli.svg?logo=npm)](https://www.npmjs.com/package/@entrolytics/cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-24.20.0+-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-24.22.2+-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org/)
 
 </div>
 
@@ -314,7 +314,7 @@ entro-ng config set <key> <value>      # Set config option
 
 **Available config keys:**
 
-- `apiHost` - Entrolytics API URL (default: <https://api.entrolytics.click>)
+- `apiHost` - Entrolytics API URL (default: <https://api.entrolytics.dev>)
 - `defaultSiteId` - Default website ID for commands
 - `outputFormat` - Output format: `table` or `json`
 

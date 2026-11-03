@@ -1,7 +1,7 @@
 import Conf from 'conf';
 import type { Config } from './types.js';
 
-const DEFAULT_API_HOST = 'https://api.entrolytics.click';
+const DEFAULT_API_HOST = 'https://api.entrolytics.dev';
 
 const configStore = new Conf<Config>({
   projectName: 'entro-ng-cli',
@@ -19,7 +19,7 @@ export function getConfig(): Config {
   };
 }
 
-export function setConfig<K extends keyof Config>(key: K, value: Config[K]): void {
+export function setConfig<K extends keyof Config>(key: K, value: Exclude<Config[K], undefined>): void {
   configStore.set(key, value);
 }
 

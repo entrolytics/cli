@@ -72,7 +72,7 @@ export async function configCommand(action: string, key?: string, value?: string
         return;
       }
 
-      setConfig(key as keyof Config, value as Config[keyof Config]);
+      setConfig(key as keyof Config, value as Exclude<Config[keyof Config], undefined>);
       console.log(chalk.green(`Set ${key} = ${value}`));
       break;
     }

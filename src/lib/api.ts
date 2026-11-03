@@ -587,7 +587,7 @@ export async function sendTestEvent(websiteId: string): Promise<ApiResponse<void
       url,
       eventType: 'custom_event',
       eventName: 'cli_test_event',
-      referrer: 'https://entrolytics.click',
+      referrer: 'https://entrolytics.dev',
       screenWidth: 1440,
       screenHeight: 900,
       loadTime: 123,

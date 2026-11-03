@@ -112,7 +112,7 @@ export async function verifyCommand(options: VerifyOptions = {}): Promise<void> 
   } else {
     console.log(
       chalk.green(
-        `View your dashboard: ${chalk.cyan(host ? `${host}/websites/${websiteId}` : `https://entrolytics.click/websites/${websiteId}`)}\n`,
+        `View your dashboard: ${chalk.cyan(host ? `${host}/websites/${websiteId}` : `https://entrolytics.dev/websites/${websiteId}`)}\n`,
       ),
     );
   }
