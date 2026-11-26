@@ -3,7 +3,7 @@
 
 [![npm](https://img.shields.io/npm/v/@entrolytics/cli.svg?logo=npm)](https://www.npmjs.com/package/@entrolytics/cli)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-24.22.2+-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-24.22.3+-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org/)
 
 </div>
 
