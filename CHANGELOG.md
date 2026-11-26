@@ -5,6 +5,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [3.0.2] - 2026-11-26
+
 ### Fixed
 
 - An expired setup token now points to where a new one is created instead of failing without
@@ -16,3 +18,6 @@ All notable changes to this project are documented in this file. The format foll
 - Consumes `@entrolytics/trpc-client` 3.1.1 and `@entrolytics/shared` 3.2.1.
 - Dependencies updated to their latest releases; the toolchain moved to tsdown, the oxc tools and
   pnpm 12.23.
+
+[Unreleased]: https://github.com/entrolytics/cli/compare/v3.0.2...HEAD
+[3.0.2]: https://github.com/entrolytics/cli/releases/tag/v3.0.2
