@@ -5,6 +5,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [3.0.3] - 2026-11-26
+
 ### Changed
 
 - Depends on `@trpc/client` 11.31.4.
@@ -24,5 +26,6 @@ All notable changes to this project are documented in this file. The format foll
 - Dependencies updated to their latest releases; the toolchain moved to tsdown, the oxc tools and
   pnpm 12.23.
 
-[Unreleased]: https://github.com/entrolytics/cli/compare/v3.0.2...HEAD
+[Unreleased]: https://github.com/entrolytics/cli/compare/v3.0.3...HEAD
+[3.0.3]: https://github.com/entrolytics/cli/compare/v3.0.2...v3.0.3
 [3.0.2]: https://github.com/entrolytics/cli/releases/tag/v3.0.2
