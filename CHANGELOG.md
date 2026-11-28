@@ -5,6 +5,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [3.0.5] - 2026-11-28
+
 ### Changed
 
 - Requires `@entrolytics/shared` 3.2.2.
@@ -38,7 +40,8 @@ All notable changes to this project are documented in this file. The format foll
 - Dependencies updated to their latest releases; the toolchain moved to tsdown, the oxc tools and
   pnpm 12.23.
 
-[Unreleased]: https://github.com/entrolytics/cli/compare/v3.0.4...HEAD
+[Unreleased]: https://github.com/entrolytics/cli/compare/v3.0.5...HEAD
+[3.0.5]: https://github.com/entrolytics/cli/compare/v3.0.4...v3.0.5
 [3.0.4]: https://github.com/entrolytics/cli/compare/v3.0.3...v3.0.4
 [3.0.3]: https://github.com/entrolytics/cli/compare/v3.0.2...v3.0.3
 [3.0.2]: https://github.com/entrolytics/cli/releases/tag/v3.0.2
