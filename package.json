@@ -54,7 +54,7 @@
   },
   "dependencies": {
     "@entrolytics/shared": "^3.2.1",
-    "@entrolytics/trpc-client": "^3.1.1",
+    "@entrolytics/trpc-client": "^4.0.0",
     "@trpc/client": "^11.31.4",
     "chalk": "^6.0.1",
     "cli-table3": "^0.6.5",
